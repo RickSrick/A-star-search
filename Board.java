@@ -1,11 +1,10 @@
 import java.util.Arrays;
 import java.util.Stack;
 
-public class Board implements Comparable<Board> {
+public final class Board implements Comparable<Board> {
 
     Board pater;
     int [][] board;
-    //final StringBuilder sb = new StringBuilder();
     final int [] data = new int[3]; //0 lenght, 1 move , 2 manhattan
     final boolean[] lastmove = new boolean[4]; //0 up ,  1 down , 2 left, 3 right 
     final int [] zero = new int[2];
@@ -98,7 +97,6 @@ public class Board implements Comparable<Board> {
 
         for (byte i = 0; i < data[0]; i++) {
             for (byte j = 0; j < data[0]; j++) {
-                //sb.append(board[i][j]);
                 if (board[i][j] == 0) { zero[0] = i; zero[1] = j; }
                 tmp += (board[i][j] == 0) ? 0 : Math.abs(i - (board[i][j]-1)/data[0]) + Math.abs(j - (board[i][j]-1)%data[0]);
             }
@@ -115,6 +113,7 @@ public class Board implements Comparable<Board> {
     public boolean equals(Object obj) {
         
         if(obj == this) return true;
-        return ((Board) obj).toString().equals(this.toString());  
+        //return Arrays.deepEquals(this.board, ((Board) obj).board); 
+        return ((Board) obj).toString().equals(this.toString()); 
     }
 }
