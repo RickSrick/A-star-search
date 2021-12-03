@@ -5,18 +5,23 @@ public final class Board implements Comparable<Board> {
 
     Board pater;
     int [][] board;
-    final int [] data = new int[3]; //0 lenght, 1 move , 2 manhattan
+    int [] data = new int[3]; //0 lenght, 1 move , 2 manhattan
     final boolean[] lastmove = new boolean[4]; //0 up ,  1 down , 2 left, 3 right 
     final int [] zero = new int[2];
 
-    public Board(int[][] tiles) { this(tiles,null, 0, -1); }
+    public Board(int[][] tiles) { this(tiles,null, 0, -1, -1 , 0,0); }
     
-    public Board(int[][] tiles, Board p, int m, int lm) {
+    public Board(int[][] tiles, Board p, int m, int lm, int mh, int zerox, int zeroy) {
         board = tiles;
         pater = p;
         data[0] = tiles.length;
         data[1] = m;
-        data[2] = manhattan();
+        if(mh < 0) { data[2] = manhattan(); }
+        else { 
+            data[2] = mh; 
+            zero[0] = zerox;
+            zero[1] = zeroy;
+        }
 
         if(lm >= 0) lastmove[lm] = true;
     }
@@ -41,14 +46,13 @@ public final class Board implements Comparable<Board> {
     }
 
     //O(n^2)
-   private int[][] copymatrix (int[][] pater) {
+    private int[][] copymatrix (int[][] pater) {
        int[][] tmp = new  int[data[0]][data[0]];
         for (int i = 0; i < data[0]; i++) {
             for (int j = 0; j < data[0]; j++) {
                 tmp[i][j] = pater[i][j];
             }
         }
-
         return tmp; 
     }
 
@@ -56,32 +60,42 @@ public final class Board implements Comparable<Board> {
         int pos = zero[0] + index;
         if(pos < 0 || pos >= data[0]) return null;
         int[][] tmp = copymatrix(board);
+        //int mh = data[2];
+
+        //mh -=  Math.abs(pos - (tmp[pos][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[pos][zero[1]]-1)%data[0]);
 
         tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
         tmp[pos][zero[1]] ^= tmp[zero[0]][zero[1]];
         tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
 
+        //mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
+
         byte m = 0;
-        if(index > 0) { m = 0; }
+        if(index > 0) { m = 0; }    
         else {m = 1;}
 
-        return new Board(tmp, this, data[1]+1, m);
+        return new Board(tmp, this, data[1]+1, m, -1, pos, zero[1]);
     }
 
     public Board Horizontal (int index) {
         int pos = zero[1] + index;
         if(pos < 0 || pos >= data[0]) return null;
         int[][] tmp = copymatrix(board);
+        //int mh = data[2];
+
+        //mh -=  Math.abs(zero[0] - (tmp[zero[0]][pos]-1)/data[0]) + Math.abs(pos - (tmp[zero[0]][pos]-1)%data[0]);
         
         tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
         tmp[zero[0]][pos] ^= tmp[zero[0]][zero[1]];
         tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
-    
+
+        //mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
+
         byte m = 0;
         if(index > 0) { m = 2; }
         else {m = 3;}
 
-        return new Board(tmp, this, data[1]+1, m);
+        return new Board(tmp, this, data[1]+1, m, -1, zero[0], pos);
     }
 
     public String toString() { return Arrays.deepToString(board); }

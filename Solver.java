@@ -10,7 +10,7 @@ public class Solver {
     public static void main(String[] args) {
 
         double tot = 0;
-        int maxTest = 1;
+        int maxTest = 10000;
 
         for (int i = 0; i < maxTest; i++){
 
