@@ -60,42 +60,42 @@ public final class Board implements Comparable<Board> {
         int pos = zero[0] + index;
         if(pos < 0 || pos >= data[0]) return null;
         int[][] tmp = copymatrix(board);
-        //int mh = data[2];
+        int mh = data[2];
 
-        //mh -=  Math.abs(pos - (tmp[pos][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[pos][zero[1]]-1)%data[0]);
+        mh -=  Math.abs(pos - (tmp[pos][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[pos][zero[1]]-1)%data[0]);
 
         tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
         tmp[pos][zero[1]] ^= tmp[zero[0]][zero[1]];
         tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
 
-        //mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
+        mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
 
         byte m = 0;
         if(index > 0) { m = 0; }    
         else {m = 1;}
 
-        return new Board(tmp, this, data[1]+1, m, -1, pos, zero[1]);
+        return new Board(tmp, this, data[1]+1, m, mh, pos, zero[1]);
     }
 
     public Board Horizontal (int index) {
         int pos = zero[1] + index;
         if(pos < 0 || pos >= data[0]) return null;
         int[][] tmp = copymatrix(board);
-        //int mh = data[2];
+        int mh = data[2];
 
-        //mh -=  Math.abs(zero[0] - (tmp[zero[0]][pos]-1)/data[0]) + Math.abs(pos - (tmp[zero[0]][pos]-1)%data[0]);
+        mh -=  Math.abs(zero[0] - (tmp[zero[0]][pos]-1)/data[0]) + Math.abs(pos - (tmp[zero[0]][pos]-1)%data[0]);
         
         tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
         tmp[zero[0]][pos] ^= tmp[zero[0]][zero[1]];
         tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
 
-        //mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
+        mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/data[0]) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%data[0]);
 
         byte m = 0;
         if(index > 0) { m = 2; }
         else {m = 3;}
 
-        return new Board(tmp, this, data[1]+1, m, -1, zero[0], pos);
+        return new Board(tmp, this, data[1]+1, m, mh, zero[0], pos);
     }
 
     public String toString() { return Arrays.deepToString(board); }
@@ -115,9 +115,7 @@ public final class Board implements Comparable<Board> {
     }
 
     @Override
-    public int compareTo(Board b) {
-        return this.getPriority() - b.getPriority();
-    }
+    public int compareTo(Board b) { return this.getPriority() - b.getPriority(); }
 
     @Override
     public boolean equals(Object obj) {
