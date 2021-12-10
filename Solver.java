@@ -10,7 +10,7 @@ public class Solver {
     public static void main(String[] args) {
 
         double tot = 0;
-        int maxTest = 10000;
+        int maxTest = 100;
 
         for (int i = 0; i < maxTest; i++){
 
@@ -18,15 +18,15 @@ public class Solver {
 
 
         int[][] intial = {
-                            {1, 5, 6},
-                            {7, 4, 3},
-                            {0, 2, 8}
-                        };
+            {1, 5, 6},
+            {7, 4, 3},
+            {0, 2, 8}
+        };
         final Board b = new Board(intial);
         
         pq.add(b);
         hm.add(b);
-        while(pq.peek().data[2] != 0){            
+        while(pq.peek().data[1] != 0){            
             solve(pq.poll());
         }
 
@@ -57,15 +57,12 @@ public class Solver {
     }
 
     static void solve (Board b){
-        final Stack<Board> children = b.getChildren();
-        while(children.size() != 0) {
-            
-            Board bson = children.pop();
-            if(bson != null && !hm.contains(bson)) {
-                pq.add(bson);
-                hm.add(bson); 
-            }
-            
+        final Board[] children = b.getChildren();
+        for(int i = 0; i < 4; i++) {
+            if(children[i] != null && !hm.contains(children[i])) {
+                pq.add(children[i]);
+                hm.add(children[i]); 
+            }            
         }
     }
     
