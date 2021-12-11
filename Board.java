@@ -1,4 +1,3 @@
-import java.util.Arrays;
 public final class Board implements Comparable<Board> {
 
     Board pater;
@@ -91,20 +90,29 @@ public final class Board implements Comparable<Board> {
         byte lastMove = (index > 0) ? (byte)2 : 3;
         return new Board(tmp, this, data[0]+1, lastMove, mh, zero[0], pos);
     }
-
-    public String toString() { return Arrays.deepToString(board); }
-
+    
     public int manhattan() {
         int tmp = 0;
-        
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (board[i][j] == 0) { zero[0] = i; zero[1] = j; }
                 tmp += (board[i][j] == 0) ? 0 : Math.abs(i - (board[i][j]-1)/size) + Math.abs(j - (board[i][j]-1)%size);
             }
         }
-
         return tmp;
+    }
+
+    @Override
+    public String toString() { 
+        StringBuilder sb = new StringBuilder();
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                sb.append(board[i][j]);
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override
