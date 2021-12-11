@@ -1,6 +1,5 @@
 import java.util.HashSet;
 import java.util.PriorityQueue;
-import java.util.Stack;
 
 public class Solver {
 
@@ -26,16 +25,13 @@ public class Solver {
         
         pq.add(b);
         hm.add(b);
-        while(pq.peek().data[1] != 0){            
-            solve(pq.poll());
-        }
+        while(pq.peek().data[1] != 0){ solve(pq.poll()); }
 
+        final Board[] result = printPath(pq.peek());
 
-        final Stack<Board> res = printpath(pq.peek());
-
-        System.out.println(res.size()-1);
-        while(res.size() != 0){
-            System.out.println(res.pop());
+        System.out.println(result.length-1);
+        for (int j = 0; j < result.length; j++) {
+            System.out.println(result[j]);
         }
 
         long y =System.currentTimeMillis();
@@ -46,14 +42,17 @@ public class Solver {
         System.out.println(tot/maxTest);
     }
 
-    private static Stack<Board> printpath(Board start) {
-        final Stack<Board> ll = new Stack<Board>();
-        while(start.pater != null) {
-            ll.add(start);
+    static Board[] printPath(Board start){
+        final int length = start.data[0];
+        final Board[] path = new Board[length+1];
+
+        for (int i = length; i > 0; i--) {
+            path[i] = start;
             start = start.pater;
         }
-        ll.add(start);
-        return ll;
+
+        path[0] = start;
+        return path;
     }
 
     static void solve (Board b){
@@ -61,7 +60,7 @@ public class Solver {
         for(int i = 0; i < 4; i++) {
             if(children[i] != null && !hm.contains(children[i])) {
                 pq.add(children[i]);
-                hm.add(children[i]); 
+                hm.add(children[i]);
             }            
         }
     }
