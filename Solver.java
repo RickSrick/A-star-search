@@ -25,7 +25,6 @@ public class Solver {
 		
 		while(pq.peek().data[1] != 0){ solve(pq.poll()); }
 
-		//final Board[] result = printPath(pq.peek());
 		final String[] result = printPathS(pq.peek());
 
 		System.out.println(result.length-1);
@@ -40,17 +39,6 @@ public class Solver {
 	}		
 		System.out.println(tot/1000);
 	}
-
-	/*static Board[] printPath(Board start){
-		final int length = start.data[0];
-		final Board[] path = new Board[length+1];
-
-		for (int i = length; i >= 0; i--) {
-			path[i] = start;
-			start = start.pater;
-		}
-		return path;
-	}*/
 
 	static String[] printPathS(Board start){
 		final int length = start.data[0];
@@ -67,7 +55,8 @@ public class Solver {
 		final Board[] children = b.getChildren();
 		final int length = children.length;
 		for(int i = 0; i < length; i++) {
-			if(children[i] != null && !hm.contains(children[i].toString())) pq.add(children[i]);
+			if(children[i] != null && !hm.contains(children[i].toString())) 
+				pq.add(children[i]);
 		}
 		hm.add(b.toString());
 		

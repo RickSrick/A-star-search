@@ -126,9 +126,6 @@ public final class Board implements Comparable<Board> {
 		return sb.toString();
 	}
 
-	@Override
 	public int compareTo(Board b) { return this.getPriority() - b.getPriority(); }
-
-	@Override
 	public boolean equals(Object obj) { return ((Board) obj).toString().equals(this.toString()); }
 }
