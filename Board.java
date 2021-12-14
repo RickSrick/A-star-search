@@ -14,10 +14,10 @@ public final class Board implements Comparable<Board> {
 		data[0] = 0;
 		data[1] = manhattan();
 	}
-	public Board(int[][] tiles, Board p, int m, int lm, int mh, int zerox, int zeroy) {
+	public Board(int[][] tiles, Board p, int lm, int mh, int zerox, int zeroy) {
 		board = tiles;
 		pater = p;
-		data[0] = m;
+		data[0] = pater.data[0] + 1;
 		data[1] = mh;
 		zero[0] = zerox;
 		zero[1] = zeroy;
@@ -26,9 +26,24 @@ public final class Board implements Comparable<Board> {
 
 	public int getPriority() { return data[0] + data[1]; }
 
+	private static boolean linearConflict(int[][] board, int x, int y) { return  (board[x][y] != 0) && (x == (board[x][y]-1)/size || y == (board[x][y]-1)%size ) && ( x*size+y+1 != board[x][y] ) && ( x*size+y+1 == board[(board[x][y]-1)/size][(board[x][y]-1)%size]); }
+	
+	private static int mh(int[][] board, int x, int y) { return Math.abs(x - (board[x][y]-1)/size) + Math.abs(y - (board[x][y]-1)%size); }
+	
+	private static int[][] copymatrix (int[][] pater) {
+		final int[][] tmp = new  int[size][size];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				tmp[i][j] = pater[i][j];
+			}
+		}
+		return tmp; 
+	}
+
 	public Board[] getChildren() {
 		final Board[] children = new Board[4];
 		int k = 0;
+		
 		if(!lastmove[0]) {
 			children[k++] = Vertical(-1);
 		}
@@ -44,32 +59,24 @@ public final class Board implements Comparable<Board> {
 		return children;
 	}
 
-	private static int[][] copymatrix (int[][] pater) {
-		final int[][] tmp = new  int[size][size];
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				tmp[i][j] = pater[i][j];
-			}
-		}
-		return tmp; 
-	}
-
 	public Board Vertical (int index) {
 		int pos = zero[0] + index;
 		if(pos < 0 || pos >= size) return null;
 		int[][] tmp = copymatrix(board);
 		int mh = data[1];
 
-		mh -=  Math.abs(pos - (tmp[pos][zero[1]]-1)/size) + Math.abs(zero[1] - (tmp[pos][zero[1]]-1)%size);
+		mh -= mh(tmp, pos, zero[1]);
+        if (linearConflict(tmp, pos, zero[1])) mh -= 2;
 
-		tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
-		tmp[pos][zero[1]] ^= tmp[zero[0]][zero[1]];
-		tmp[zero[0]][zero[1]] ^= tmp[pos][zero[1]];
+		tmp[zero[0]][zero[1]] = tmp[pos][zero[1]];
+		tmp[pos][zero[1]] = 0;
 
-		mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/size) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%size);
+		mh += mh(tmp, zero[0], zero[1]);
+		if (linearConflict(tmp, zero[0], zero[1])) mh += 2;
 
-		byte lastMove = (index > 0) ? (byte)0 : 1;
-		return new Board(tmp, this, data[0]+1, lastMove, mh, pos, zero[1]);
+		int lastMove = (index > 0) ? 0 : 1;
+		
+		return new Board(tmp, this, lastMove, mh, pos, zero[1]);
 	}
 
 	public Board Horizontal (int index) {
@@ -78,16 +85,18 @@ public final class Board implements Comparable<Board> {
 		int[][] tmp = copymatrix(board);
 		int mh = data[1];
 
-		mh -=  Math.abs(zero[0] - (tmp[zero[0]][pos]-1)/size) + Math.abs(pos - (tmp[zero[0]][pos]-1)%size);
+		mh -=  mh(tmp, zero[0], pos);
+		if (linearConflict(tmp,zero[0], pos)) mh -= 2;
 		
-		tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
-		tmp[zero[0]][pos] ^= tmp[zero[0]][zero[1]];
-		tmp[zero[0]][zero[1]] ^= tmp[zero[0]][pos];
+		tmp[zero[0]][zero[1]] = tmp[zero[0]][pos];
+		tmp[zero[0]][pos] = 0;
 
-		mh += Math.abs(zero[0] - (tmp[zero[0]][zero[1]]-1)/size) + Math.abs(zero[1] - (tmp[zero[0]][zero[1]]-1)%size);
+		mh += mh(tmp, zero[0], zero[1]);
+		if (linearConflict(tmp, zero[0], zero[1])) mh += 2;
 
-		byte lastMove = (index > 0) ? (byte)2 : 3;
-		return new Board(tmp, this, data[0]+1, lastMove, mh, zero[0], pos);
+		int lastMove = (index > 0) ? 2 : 3;
+		
+		return new Board(tmp, this, lastMove, mh, zero[0], pos);
 	}
 	
 	public int manhattan() {
@@ -95,7 +104,10 @@ public final class Board implements Comparable<Board> {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (board[i][j] == 0) { zero[0] = i; zero[1] = j; }
-				tmp += (board[i][j] == 0) ? 0 : Math.abs(i - (board[i][j]-1)/size) + Math.abs(j - (board[i][j]-1)%size);
+				else {
+					tmp += mh(board, i, j);
+					if (linearConflict(board, i, j)) tmp++; 
+				}
 			}
 		}
 		return tmp;

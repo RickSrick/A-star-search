@@ -4,30 +4,29 @@ import java.util.PriorityQueue;
 public class Solver {
 
 	static final PriorityQueue<Board> pq = new PriorityQueue<Board>();
-	static final HashSet<Board> hm = new HashSet<Board>();
+	static final HashSet<String> hm = new HashSet<>();
 
-	public static void main(String[] args) {
-
+	public static void main(String[] args) {		
+		
 		double tot = 0;
-		int maxTest = 1000;
-
-		for (int i = 0; i < maxTest; i++){
-
+		for (int i = 0; i < 1000; i++) {
+			
 		long x = System.currentTimeMillis();
 
-
+		//9 10 15 5 3 11 14 7 12 6 1 13 2 8 0 4   
 		int[][] intial = {
-			{1, 5, 6},
-			{7, 4, 3},
-			{0, 2, 8}
+			{9, 0, 2, 7},
+			{4, 1, 8, 3},
+			{13, 15, 12, 10},
+			{14, 6, 11, 5}
 		};
 		final Board b = new Board(intial);
-		
 		pq.add(b);
-		hm.add(b);
+		
 		while(pq.peek().data[1] != 0){ solve(pq.poll()); }
 
-		final Board[] result = printPath(pq.peek());
+		//final Board[] result = printPath(pq.peek());
+		final String[] result = printPathS(pq.peek());
 
 		System.out.println(result.length-1);
 		for (int j = 0; j < result.length; j++) {
@@ -35,33 +34,42 @@ public class Solver {
 		}
 
 		long y =System.currentTimeMillis();
-
-			tot += (y-x);
-		}
-
-		System.out.println(tot/maxTest);
+		tot += y-x;	
+		hm.clear();
+		pq.clear();	
+	}		
+		System.out.println(tot/1000);
 	}
 
-	static Board[] printPath(Board start){
+	/*static Board[] printPath(Board start){
 		final int length = start.data[0];
 		final Board[] path = new Board[length+1];
 
-		for (int i = length; i > 0; i--) {
+		for (int i = length; i >= 0; i--) {
 			path[i] = start;
 			start = start.pater;
 		}
+		return path;
+	}*/
 
-		path[0] = start;
+	static String[] printPathS(Board start){
+		final int length = start.data[0];
+		final String[] path = new String[length+1];
+
+		for (int i = length; i >= 0; i--) {
+			path[i] = start.toString();
+			start = start.pater;
+		}
 		return path;
 	}
 
 	static void solve (Board b){
 		final Board[] children = b.getChildren();
-		for(int i = 0; i < 4; i++) {
-			if(children[i] != null && !hm.contains(children[i])) {
-				pq.add(children[i]);
-				hm.add(children[i]);
-			}
+		final int length = children.length;
+		for(int i = 0; i < length; i++) {
+			if(children[i] != null && !hm.contains(children[i].toString())) pq.add(children[i]);
 		}
+		hm.add(b.toString());
+		
 	}
 }
