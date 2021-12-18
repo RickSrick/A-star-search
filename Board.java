@@ -1,9 +1,9 @@
 public final class Board implements Comparable<Board> {
 
 	Board pater;
-	int [][] board;
+	final int [][] board;
 	static int size;
-	int[] data = new int[2]; //0 move , 1 manhattan
+	final int[] data = new int[2]; //0 move , 1 manhattan
 	final boolean[] lastmove = new boolean[4]; //0 up ,  1 down , 2 left, 3 right 
 	final int [] zero = new int[2];
 
@@ -29,7 +29,7 @@ public final class Board implements Comparable<Board> {
 	private static boolean linearConflict(int[][] board, int x, int y) { return  (board[x][y] != 0) && (x == (board[x][y]-1)/size || y == (board[x][y]-1)%size ) && ( x*size+y+1 != board[x][y] ) && ( x*size+y+1 == board[(board[x][y]-1)/size][(board[x][y]-1)%size]); }
 	
 	private static int mh(int[][] board, int x, int y) { return Math.abs(x - (board[x][y]-1)/size) + Math.abs(y - (board[x][y]-1)%size); }
-	
+
 	private static int[][] copymatrix (int[][] pater) {
 		final int[][] tmp = new  int[size][size];
 		for (int i = 0; i < size; i++) {

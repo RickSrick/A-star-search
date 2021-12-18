@@ -5,20 +5,19 @@ public class Solver {
 
 	static final PriorityQueue<Board> pq = new PriorityQueue<Board>();
 	static final HashSet<String> hm = new HashSet<>();
-
 	public static void main(String[] args) {		
 		
 		double tot = 0;
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10; i++) {			
 			
-		long x = System.currentTimeMillis();
-
-		//9 10 15 5 3 11 14 7 12 6 1 13 2 8 0 4   
+			long x = System.currentTimeMillis();
+			
+		//7 5 0 8 2 14 12 15 9 10 1 3 13 11 4 6
 		int[][] intial = {
-			{9, 0, 2, 7},
-			{4, 1, 8, 3},
-			{13, 15, 12, 10},
-			{14, 6, 11, 5}
+			{7, 5, 0, 8},
+			{2, 14, 12, 15},
+			{9, 10, 1, 3},
+			{13, 11, 4, 6}
 		};
 		final Board b = new Board(intial);
 		pq.add(b);
@@ -37,7 +36,7 @@ public class Solver {
 		hm.clear();
 		pq.clear();	
 	}		
-		System.out.println(tot/1000);
+		System.out.println(tot/10);
 	}
 
 	static String[] printPathS(Board start){
@@ -59,6 +58,5 @@ public class Solver {
 				pq.add(children[i]);
 		}
 		hm.add(b.toString());
-		
 	}
 }
