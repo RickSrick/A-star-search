@@ -1,25 +1,32 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 
 public class Solver {
 
 	static final PriorityQueue<Board> pq = new PriorityQueue<Board>();
 	static final HashSet<String> hm = new HashSet<>();
-	public static void main(String[] args) {		
+	public static void main(String[] args) throws FileNotFoundException {		
 		
-		double tot = 0;
-		for (int i = 0; i < 10; i++) {			
-			
-			long x = System.currentTimeMillis();
-			
-		//7 5 0 8 2 14 12 15 9 10 1 3 13 11 4 6
-		int[][] intial = {
-			{7, 5, 0, 8},
-			{2, 14, 12, 15},
-			{9, 10, 1, 3},
-			{13, 11, 4, 6}
-		};
-		final Board b = new Board(intial);
+		double x = System.currentTimeMillis();
+		
+		Scanner sc = new Scanner(new File(args[0]));
+		final int length = sc.nextInt();
+		final int[] array = new int[length*length];
+		
+		for(int i = 0; sc.hasNext(); i++){
+			array[i] = sc.nextInt();
+		}
+
+		int[][] initial = arrToMatrix(array, length);
+
+		final Board b = new Board(initial);
+		
+
+
+		
 		pq.add(b);
 		
 		while(pq.peek().data[1] != 0){ solve(pq.poll()); }
@@ -31,12 +38,22 @@ public class Solver {
 			System.out.println(result[j]);
 		}
 
-		long y =System.currentTimeMillis();
-		tot += y-x;	
-		hm.clear();
-		pq.clear();	
-	}		
-		System.out.println(tot/10);
+		double y =System.currentTimeMillis();
+		System.out.println(y-x);
+	}
+
+	private static int[][] arrToMatrix(int[] array, int length) {
+		final int[][] out = new int[length][length];
+
+		int k = 0;
+
+		for (int i = 0; i < length; i++) {
+			for (int j = 0; j < length; j++) {
+				out[i][j] = array[k++];
+			}
+		}
+
+		return out;
 	}
 
 	static String[] printPathS(Board start){
