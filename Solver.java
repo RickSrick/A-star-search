@@ -10,8 +10,6 @@ public class Solver {
 	static final HashSet<String> hm = new HashSet<>();
 	public static void main(String[] args) throws FileNotFoundException {		
 		
-		double x = System.currentTimeMillis();
-		
 		Scanner sc = new Scanner(new File(args[0]));
 		final int length = sc.nextInt();
 		final int[] array = new int[length*length];
@@ -22,11 +20,7 @@ public class Solver {
 
 		int[][] initial = arrToMatrix(array, length);
 
-		final Board b = new Board(initial);
-		
-
-
-		
+		final Board b = new Board(initial);		
 		pq.add(b);
 		
 		while(pq.peek().data[1] != 0){ solve(pq.poll()); }
@@ -37,9 +31,6 @@ public class Solver {
 		for (int j = 0; j < result.length; j++) {
 			System.out.println(result[j]);
 		}
-
-		double y =System.currentTimeMillis();
-		System.out.println(y-x);
 	}
 
 	private static int[][] arrToMatrix(int[] array, int length) {
