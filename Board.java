@@ -117,9 +117,9 @@ public final class Board implements Comparable<Board> {
 	public String toString() { 
 		StringBuilder sb = new StringBuilder();
 		
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				sb.append(board[i][j]);
+		for (int[] ks : board) {
+			for (int k : ks) {
+				sb.append(k);
 				sb.append(" ");
 			}
 		}
