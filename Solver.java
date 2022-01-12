@@ -31,7 +31,7 @@ public class Solver {
 		
 		double initial = System.currentTimeMillis();
 		priorityQueue.add(reachInput(args[0]));
-		while(priorityQueue.peek().data[1] != 0){ solve(priorityQueue.poll()); }
+		while(priorityQueue.peek().manhattan != 0){ solve(priorityQueue.poll()); }
 		
 		boardDatabase.put(priorityQueue.peek().toString(), priorityQueue.peek().pater);
 		final String[] path = path(priorityQueue.peek());
@@ -48,7 +48,7 @@ public class Solver {
 	}
 	
 	static String[] path(Board destination) {
-		final int numberOfMove = destination.data[0];
+		final int numberOfMove = destination.move;
 		System.out.println(numberOfMove);
 		final String[] path = new String[numberOfMove + 1];
 		String s = destination.toString();
@@ -67,7 +67,7 @@ public class Solver {
 		for (Board child : children) {
 			if(child != null && !boardDatabase.containsKey(child.toString())) { priorityQueue.add(child); }
 		}
-		
+
 		if(!boardDatabase.containsKey(currentBoard.toString()))boardDatabase.put(currentBoard.toString(), currentBoard.pater);
 	}
 }

@@ -1,15 +1,16 @@
 public class Board implements Comparable<Board> {
 
 	String pater;
-	final int[] board;
-	final int[] data = new int[2]; // data[0] = move, data[1] = manhattan
-	byte lastMove; //0 up, 1 down, 2 left, 3 right; 
-	int zero;
+	private final int[] board;
+	int move;
+	int manhattan;
+	private byte lastMove; //0 up, 1 down, 2 left, 3 right; 
+	private int zero;
 
 	public Board(int [][] tiles) {
 		this(matrixToArray(tiles));
 	}
-	public static int[] matrixToArray(int[][] tiles) {
+	private static int[] matrixToArray(int[][] tiles) {
 		final int[] tmp = new int[Solver.size*Solver.size];
 		
 		for (int i = 0; i < Solver.size; i++) {
@@ -23,17 +24,17 @@ public class Board implements Comparable<Board> {
 	public Board(int[] tiles) {
 		board = tiles;
 		pater = " ";
-		data[0] = 0; //0 move initial state
-		data[1] = manhattan();
+		move = 0; //0 move initial state
+		manhattan = manhattan();
 		lastMove = -1;
 	}
 
-	public Board(int[] tiles, String _pater, int move, byte _lastMove, int manhattan, int _zero) {
+	public Board(int[] tiles, String _pater, int _move, byte _lastMove, int _manhattan, int _zero) {
 		board = tiles;
 		pater = _pater;
-		data[0] = move;
+		move = _move;
 		lastMove = _lastMove;
-		data[1] = manhattan;
+		manhattan = _manhattan;
 		zero = _zero;
 	}
 
@@ -54,7 +55,7 @@ public class Board implements Comparable<Board> {
 
 	private static boolean linearConflict(int[] board, int s) { return  (board[s] != 0) && (s/Solver.size == (board[s]-1)/Solver.size || s%Solver.size == (board[s]-1)%Solver.size ) && ( s+1 != board[s] ) && ( s+1 == board[((board[s]-1)/Solver.size)*Solver.size+((board[s]-1)%Solver.size)]); }
 	private static int mh(int tile, int index) { return Math.abs(index/Solver.size - (tile-1)/Solver.size) + Math.abs(index%Solver.size - (tile-1)%Solver.size); };
-	private int getPriority() { return data[0] + data[1]; }
+	private int getPriority() { return move + manhattan; }
 	
 	public int compareTo(Board o) {	 return this.getPriority() - o.getPriority(); }
 	public String toString() {
@@ -75,7 +76,7 @@ public class Board implements Comparable<Board> {
 
 		int[] tmpTiles = new int[board.length];
 		System.arraycopy(board, 0, tmpTiles, 0, board.length);
-		int newManhattan = data[1];
+		int newManhattan = manhattan;
 
 		newManhattan -= mh(tmpTiles[tile], tile);
         if (linearConflict(tmpTiles, tile)) newManhattan -= 2;
@@ -92,7 +93,7 @@ public class Board implements Comparable<Board> {
 		}
 		else newLastMove = (xIndex > 0) ? (byte)0 : (byte)1;
 
-		return new Board(tmpTiles, this.toString(), data[0]+1, newLastMove, newManhattan, tile);
+		return new Board(tmpTiles, this.toString(), move+1, newLastMove, newManhattan, tile);
 	}
 	public Board[] getChildren(){
 		final Board[] children = new Board[4];
