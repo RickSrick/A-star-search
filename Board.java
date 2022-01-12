@@ -1,6 +1,7 @@
 public class Board implements Comparable<Board> {
 
 	String pater;
+	private String toString;
 	private final int[] board;
 	int move;
 	int manhattan;
@@ -27,6 +28,7 @@ public class Board implements Comparable<Board> {
 		move = 0; //0 move initial state
 		manhattan = manhattan();
 		lastMove = -1;
+		toString = personaltoString(board);
 	}
 
 	public Board(int[] tiles, String _pater, int _move, byte _lastMove, int _manhattan, int _zero) {
@@ -36,6 +38,7 @@ public class Board implements Comparable<Board> {
 		lastMove = _lastMove;
 		manhattan = _manhattan;
 		zero = _zero;
+		toString = personaltoString(board);
 	}
 
 	public int manhattan() {
@@ -58,7 +61,7 @@ public class Board implements Comparable<Board> {
 	private int getPriority() { return move + manhattan; }
 	
 	public int compareTo(Board o) {	 return this.getPriority() - o.getPriority(); }
-	public String toString() {
+	private static String personaltoString(int[] board) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i : board) {
@@ -67,6 +70,8 @@ public class Board implements Comparable<Board> {
 		}
 		return sb.toString();
 	}
+
+	public String toString() { return toString; }
 	
 	private Board move(int xIndex, int yIndex) {
 		final int[] zArray = {(zero/Solver.size),(zero%Solver.size)};
