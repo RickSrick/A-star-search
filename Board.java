@@ -48,12 +48,12 @@ public class Board implements Comparable<Board> {
 			}
 		}
 
-		for (int j = 0; j < board.length; j++) { if(linearConflict(board, j)) tmp++; }
+		for (int j = 0; j < board.length; j++) { if(VeryBadlinearConflict(board, j)) tmp++; }
 
 		return tmp;
 	}
 
-	private static boolean linearConflict(int[] board, int s) { return  (board[s] != 0) && (s/Solver.size == (board[s]-1)/Solver.size || s%Solver.size == (board[s]-1)%Solver.size ) && ( s+1 != board[s] ) && ( s+1 == board[((board[s]-1)/Solver.size)*Solver.size+((board[s]-1)%Solver.size)]); }
+	private static boolean VeryBadlinearConflict(int[] board, int s) { return (board[s] != 0) && (s/Solver.size == (board[s]-1)/Solver.size || s%Solver.size == (board[s]-1)%Solver.size ) && ( s+1 != board[s] ) && ( s+1 == board[((board[s]-1)/Solver.size)*Solver.size+((board[s]-1)%Solver.size)]); }
 	private static int mh(int tile, int index) { return Math.abs(index/Solver.size - (tile-1)/Solver.size) + Math.abs(index%Solver.size - (tile-1)%Solver.size); };
 	private int getPriority() { return move + manhattan; }
 	
@@ -79,13 +79,13 @@ public class Board implements Comparable<Board> {
 		int newManhattan = manhattan;
 
 		newManhattan -= mh(tmpTiles[tile], tile);
-        if (linearConflict(tmpTiles, tile)) newManhattan -= 2;
+        if (VeryBadlinearConflict(tmpTiles, tile)) newManhattan -= 2;
 
 		tmpTiles[zero] = tmpTiles[tile];
 		tmpTiles[tile] = 0;
 		
 		newManhattan += mh(tmpTiles[zero], zero);
-        if (linearConflict(tmpTiles, zero)) newManhattan += 2;
+        if (VeryBadlinearConflict(tmpTiles, zero)) newManhattan += 2;
 
 		byte newLastMove;
 		if(xIndex == 0 && yIndex != 0){
