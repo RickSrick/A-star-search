@@ -1,131 +1,130 @@
-public final class Board implements Comparable<Board> {
+public class Board implements Comparable<Board> {
 
-	Board pater;
-	final int [][] board;
-	static int size;
-	final int[] data = new int[2]; //0 move , 1 manhattan
-	final boolean[] lastmove = new boolean[4]; //0 up ,  1 down , 2 left, 3 right 
-	final int [] zero = new int[2];
+	String pater;
+	final int[] board;
+	final int[] data = new int[2]; // data[0] = move, data[1] = manhattan
+	byte lastMove; //0 up, 1 down, 2 left, 3 right; 
+	int zero;
 
-	public Board(int[][] tiles) {
-		board = tiles;
-		pater = null;
-		size = tiles.length;
-		data[0] = 0;
-		data[1] = manhattan();
+	public Board(int [][] tiles) {
+		this(matrixToArray(tiles));
 	}
-	public Board(int[][] tiles, Board p, int lm, int mh, int zerox, int zeroy) {
-		board = tiles;
-		pater = p;
-		data[0] = pater.data[0] + 1;
-		data[1] = mh;
-		zero[0] = zerox;
-		zero[1] = zeroy;
-		lastmove[lm] = true;
-	}
-
-	public int getPriority() { return data[0] + data[1]; }
-
-	private static boolean linearConflict(int[][] board, int x, int y) { return  (board[x][y] != 0) && (x == (board[x][y]-1)/size || y == (board[x][y]-1)%size ) && ( x*size+y+1 != board[x][y] ) && ( x*size+y+1 == board[(board[x][y]-1)/size][(board[x][y]-1)%size]); }
-	
-	private static int mh(int[][] board, int x, int y) { return Math.abs(x - (board[x][y]-1)/size) + Math.abs(y - (board[x][y]-1)%size); }
-
-	private static int[][] copymatrix (int[][] pater) {
-		final int[][] tmp = new  int[size][size];
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				tmp[i][j] = pater[i][j];
-			}
-		}
-		return tmp; 
-	}
-
-	public Board[] getChildren() {
-		final Board[] children = new Board[4];
-		int k = 0;
+	public static int[] matrixToArray(int[][] tiles) {
+		final int[] tmp = new int[Solver.size*Solver.size];
 		
-		if(!lastmove[0]) {
-			children[k++] = Vertical(-1);
-		}
-		if(!lastmove[1]) {
-			children[k++] = Vertical(1);
-		}
-		if(!lastmove[2]) {
-			children[k++] = Horizontal(-1);
-		}
-		if(!lastmove[3]) {
-			children[k++] = Horizontal(1);
-		}
-		return children;
-	}
-
-	public Board Vertical (int index) {
-		int pos = zero[0] + index;
-		if(pos < 0 || pos >= size) return null;
-		int[][] tmp = copymatrix(board);
-		int mh = data[1];
-
-		mh -= mh(tmp, pos, zero[1]);
-        if (linearConflict(tmp, pos, zero[1])) mh -= 2;
-
-		tmp[zero[0]][zero[1]] = tmp[pos][zero[1]];
-		tmp[pos][zero[1]] = 0;
-
-		mh += mh(tmp, zero[0], zero[1]);
-		if (linearConflict(tmp, zero[0], zero[1])) mh += 2;
-
-		int lastMove = (index > 0) ? 0 : 1;
-		
-		return new Board(tmp, this, lastMove, mh, pos, zero[1]);
-	}
-
-	public Board Horizontal (int index) {
-		int pos = zero[1] + index;
-		if(pos < 0 || pos >= size) return null;
-		int[][] tmp = copymatrix(board);
-		int mh = data[1];
-
-		mh -=  mh(tmp, zero[0], pos);
-		if (linearConflict(tmp,zero[0], pos)) mh -= 2;
-		
-		tmp[zero[0]][zero[1]] = tmp[zero[0]][pos];
-		tmp[zero[0]][pos] = 0;
-
-		mh += mh(tmp, zero[0], zero[1]);
-		if (linearConflict(tmp, zero[0], zero[1])) mh += 2;
-
-		int lastMove = (index > 0) ? 2 : 3;
-		
-		return new Board(tmp, this, lastMove, mh, zero[0], pos);
-	}
-	
-	public int manhattan() {
-		int tmp = 0;
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				if (board[i][j] == 0) { zero[0] = i; zero[1] = j; }
-				else {
-					tmp += mh(board, i, j);
-					if (linearConflict(board, i, j)) tmp++; 
-				}
+		for (int i = 0; i < Solver.size; i++) {
+			for (int j = 0; j < Solver.size; j++) {
+				tmp[i*Solver.size+j] = tiles[i][j];
 			}
 		}
 		return tmp;
 	}
 
-	@Override
-	public String toString() { 
+	public Board(int[] tiles) {
+		board = tiles;
+		pater = " ";
+		data[0] = 0; //0 move initial state
+		data[1] = manhattan();
+		lastMove = -1;
+	}
+
+	public Board(int[] tiles, String _pater, int move, byte _lastMove, int manhattan, int _zero) {
+		board = tiles;
+		pater = _pater;
+		data[0] = move;
+		lastMove = _lastMove;
+		data[1] = manhattan;
+		zero = _zero;
+	}
+
+	public int manhattan() {
+		int tmp = 0;
+		int l = board.length;
+		for (int i = 0; i < l; i++) {
+			if(board[i] == 0) { zero = i; }
+			else {
+				tmp += mh(board[i], i);
+			}
+		}
+
+		for (int j = 0; j < board.length; j++) { if(linearConflict(board, j)) tmp++; }
+
+		return tmp;
+	}
+
+	private static boolean linearConflict(int[] board, int s) { return  (board[s] != 0) && (s/Solver.size == (board[s]-1)/Solver.size || s%Solver.size == (board[s]-1)%Solver.size ) && ( s+1 != board[s] ) && ( s+1 == board[((board[s]-1)/Solver.size)*Solver.size+((board[s]-1)%Solver.size)]); }
+	private static int mh(int tile, int index) { return Math.abs(index/Solver.size - (tile-1)/Solver.size) + Math.abs(index%Solver.size - (tile-1)%Solver.size); };
+	private int getPriority() { return data[0] + data[1]; }
+	
+	public int compareTo(Board o) {	 return this.getPriority() - o.getPriority(); }
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		
-		for (int[] ks : board) {
-			for (int k : ks) {
-				sb.append(k);
-				sb.append(" ");
-			}
+		for (int i : board) {
+			sb.append(i);
+			sb.append(" ");
 		}
 		return sb.toString();
 	}
+	
+	private Board move(int xIndex, int yIndex) {
+		final int[] zArray = {(zero/Solver.size),(zero%Solver.size)};
+		final int tile = (zArray[0]+xIndex)*Solver.size+(zArray[1]+yIndex);
 
-	public int compareTo(Board b) { return this.getPriority() - b.getPriority(); }
-	public boolean equals(Object obj) { return ((Board) obj).toString().equals(this.toString()); }
+		if(((zArray[0]+xIndex)<0 || (zArray[0]+xIndex)>=Solver.size) || ((zArray[1]+yIndex)<0 || (zArray[1]+yIndex)>=Solver.size)) return null;
+
+		int[] tmpTiles = new int[board.length];
+		System.arraycopy(board, 0, tmpTiles, 0, board.length);
+		int newManhattan = data[1];
+
+		newManhattan -= mh(tmpTiles[tile], tile);
+        if (linearConflict(tmpTiles, tile)) newManhattan -= 2;
+
+		tmpTiles[zero] = tmpTiles[tile];
+		tmpTiles[tile] = 0;
+		
+		newManhattan += mh(tmpTiles[zero], zero);
+        if (linearConflict(tmpTiles, zero)) newManhattan += 2;
+
+		byte newLastMove;
+		if(xIndex == 0 && yIndex != 0){
+			newLastMove = (yIndex > 0) ? (byte)3 : (byte)2;
+		}
+		else newLastMove = (xIndex > 0) ? (byte)0 : (byte)1;
+
+		return new Board(tmpTiles, this.toString(), data[0]+1, newLastMove, newManhattan, tile);
+	}
+	public Board[] getChildren(){
+		final Board[] children = new Board[4];
+		byte k = 0;
+		
+		switch(lastMove) {
+			case 0:
+				children[k++] = move(1, 0);
+				children[k++] = move(0, -1);
+				children[k++] = move(0, 1);
+				break;
+			case 1:
+				children[k++] = move(-1, 0);
+				children[k++] = move(0,-1);
+				children[k++] = move(0, 1);
+				break;
+			case 2:
+				children[k++] = move(-1,0);
+				children[k++] = move(1, 0);
+				children[k++] = move(0, -1);
+				break;
+			case 3:
+				children[k++] = move(-1,0);
+				children[k++] = move(1,0);
+				children[k++] = move(0,1);
+				break;
+			default:
+				children[k++] = move(-1,0);
+				children[k++] = move(1,0);
+				children[k++] = move(0,1);
+				children[k++] = move(0,-1);
+			}
+		return children;
+	}
 }

@@ -1,76 +1,73 @@
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashSet;
+import java.io.BufferedOutputStream;
 import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.io.FileReader;
+import java.util.HashMap;
 
 public class Solver {
 
-	static final PriorityQueue<Board> pq = new PriorityQueue<Board>();
-	static final HashSet<String> hm = new HashSet<>();
-	public static void main(String[] args) throws FileNotFoundException {		
+	static final OutputStream out = new BufferedOutputStream ( System.out );
+	static final PriorityQueue<Board> priorityQueue = new PriorityQueue<Board>();
+	static final HashMap<String, String> boardDatabase = new HashMap<>();
+	static int size;
+
+	public static Board reachInput (String file) throws FileNotFoundException, IOException{
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		size = Integer.parseInt(br.readLine());
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		final int[] tiles = new int[size*size];
+
+		for(int i = 0; i < tiles.length; i++){ tiles[i] = Integer.parseInt(st.nextToken()); }
+		br.close();
 		
-
-		double x = System.currentTimeMillis();
-		Scanner sc = new Scanner(new File(args[0]));
-		final int length = sc.nextInt();
-		final int[] array = new int[length*length];
-		
-		for(int i = 0; sc.hasNext(); i++){
-			array[i] = sc.nextInt();
-		}
-
-		int[][] initial = arrToMatrix(array, length);
-
-		final Board b = new Board(initial);		
-		pq.add(b);
-		
-		while(pq.peek().data[1] != 0){ 
-			solve(pq.poll()); 
-		}
-
-		final String[] result = printPathS(pq.peek());
-
-		System.out.println(result.length-1);
-		for (int j = 0; j < result.length; j++) {
-			System.out.println(result[j]);
-		}
-		double y = System.currentTimeMillis();
-		System.out.println(y-x);
+		return new Board(tiles);
 	}
 
-	private static int[][] arrToMatrix(int[] array, int length) {
-		final int[][] out = new int[length][length];
-
-		int k = 0;
-
-		for (int i = 0; i < length; i++) {
-			for (int j = 0; j < length; j++) {
-				out[i][j] = array[k++];
-			}
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		
+		double initial = System.currentTimeMillis();
+		priorityQueue.add(reachInput(args[0]));
+		while(priorityQueue.peek().data[1] != 0){ solve(priorityQueue.poll()); }
+		
+		boardDatabase.put(priorityQueue.peek().toString(), priorityQueue.peek().pater);
+		final String[] path = path(priorityQueue.peek());
+		
+		for (String passage : path) {
+			out.write((passage+ "\n").getBytes());
 		}
+		out.flush();
 
-		return out;
+		double finale = System.currentTimeMillis();
+		System.out.println(finale-initial);
+
+
 	}
+	
+	static String[] path(Board destination) {
+		final int numberOfMove = destination.data[0];
+		System.out.println(numberOfMove);
+		final String[] path = new String[numberOfMove + 1];
+		String s = destination.toString();
 
-	static String[] printPathS(Board start){
-		final int length = start.data[0];
-		final String[] path = new String[length+1];
-
-		for (int i = length; i >= 0; i--) {
-			path[i] = start.toString();
-			start = start.pater;
+		for (int i = numberOfMove; i >= 0; i--) {
+			path[i] = s;
+			s = boardDatabase.get(s);
 		}
+
 		return path;
+
 	}
 
-	static void solve (Board b){
-		final Board[] children = b.getChildren();
-		final int length = children.length;
-		for(int i = 0; i < length; i++) {
-			if(children[i] != null && !hm.contains(children[i].toString())) 
-				pq.add(children[i]);
+	static void solve (Board currentBoard){
+		final Board[] children = currentBoard.getChildren();
+		for (Board child : children) {
+			if(child != null && !boardDatabase.containsKey(child.toString())) { priorityQueue.add(child); }
 		}
-		hm.add(b.toString());
+		
+		if(!boardDatabase.containsKey(currentBoard.toString()))boardDatabase.put(currentBoard.toString(), currentBoard.pater);
 	}
 }
