@@ -39,8 +39,6 @@ public class Solver {
 		}
 		out.flush();
 
-		double finale = System.currentTimeMillis();
-
 	}
 	
 	static String[] path(Board destination) {
