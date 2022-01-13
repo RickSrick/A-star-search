@@ -14,26 +14,18 @@ public class Board implements Comparable<Board> {
 		final int[][] C = new int[Solver.size][Solver.size];
 		final int[] row = new int[Solver.size];
 
-		//get Array num Row
 		System.arraycopy(board, num*Solver.size, row, 0, row.length);
-		
 		int min = Solver.size*num + 1;
-		//Esempio [4x4] num = 3 Solver.size*num + Solver.size = 16	=> MAX = 15
 		int max = (Solver.size*num + Solver.size<=Solver.size*Solver.size) ? Solver.size*num + Solver.size : Solver.size*num + Solver.size-1;
 
-		//CONTROLLO DELLE 3 CONDIZIONI DI LINEAR CONFLICT
 		for (int i = 0; i < Solver.size; i++)
 			if (row[i] != 0 && row[i] >= min && row[i] <= max)
 				for (int j = i; j < Solver.size; j++)
-					if (row[j] != 0 && row[j] >= min && row[j] <= max)
-						if ((row[i] < row[j]) != (i < j)) {	
+					if (row[j] != 0 && row[j] >= min && row[j] <= max && (row[i] < row[j]) != (i < j)) {	
 							C[0][i]++;
 							C[j][i] = j+1;
 						}
-		
-		
 		return getInversions(C);
-
 	}
 	public static int colLC (int[] board, int num) {
 		final int[][] C = new int[Solver.size][Solver.size];
@@ -45,14 +37,14 @@ public class Board implements Comparable<Board> {
 			col[i] = (j < Solver.size*Solver.size) ? board[j-1] : 0;
 		}
 
-		for (int i = 0, iPos; i < Solver.size; i++) {
-			if (col[i] != 0 && 0 <= (iPos = binarySearch(des, col[i]))) {
-				for (int j = i, jPos; j < Solver.size; j++) {
-					if (col[j] != 0 && 0 <= (jPos = binarySearch(des, col[j]))) {
-						if ((col[i] < col[j]) != (i < j)) {
+		for (int i = 0; i < Solver.size; i++) {
+			int rowIndex = binarySearch(des, col[i]);
+			if (col[i] != 0 && 0 <= rowIndex) {
+				for (int j = i; j < Solver.size; j++) {
+					int colIndex = binarySearch(des, col[j]);
+					if (col[j] != 0 && 0 <= colIndex && (col[i] < col[j]) != (i < j)) {
 							C[0][i]++;
 							C[j][i] = j+1;
-						}
 					}
 				}
 			}
@@ -64,7 +56,6 @@ public class Board implements Comparable<Board> {
 		int inversions = 0;
 		int k = findMax(C[0]);
 		while(C[0][k] > 0) {
-			//int maxIndex = findMax(C[0]);
 			C[0][k] = 0;
 			for (int i = 1; i < Solver.size; i++) { 
 				int toChangeIndex = C[i][k]-1;
@@ -121,10 +112,6 @@ public class Board implements Comparable<Board> {
 		zero = _zero;
 	}
 
-	//0 riga, 1 colonna
-	
-
-
 	public int manhattan() {
 		int tmp = 0;
 		int l = board.length;
@@ -144,13 +131,12 @@ public class Board implements Comparable<Board> {
 		return tmp;
 	}
 
-	//private static boolean VeryBadlinearConflict(int[] board, int s) { return (board[s] != 0) && (s/Solver.size == (board[s]-1)/Solver.size || s%Solver.size == (board[s]-1)%Solver.size ) && ( s+1 != board[s] ) && ( s+1 == board[((board[s]-1)/Solver.size)*Solver.size+((board[s]-1)%Solver.size)]); }
 	private static int mh(int tile, int index) { return Math.abs(index/Solver.size - (tile-1)/Solver.size) + Math.abs(index%Solver.size - (tile-1)%Solver.size); };
 	private int getPriority() { return move + manhattan + 2*(conflict); }
 	
 	public int compareTo(Board o) {	 return this.getPriority() - o.getPriority(); }
 	public String toString() { return me; }	
-	private String toString(int[] tiles) {
+	private static String toString(int[] tiles) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i : tiles) {
@@ -171,13 +157,6 @@ public class Board implements Comparable<Board> {
 		int newManhattan = manhattan;
 
 		newManhattan -= mh(tmpTiles[tile], tile);
-        //if (VeryBadlinearConflict(tmpTiles, tile)) newManhattan -= 2;
-		/*for (int i = 0; i < Solver.size; i++) {
-			newManhattan -= rowLC(tmpTiles, i);
-			newManhattan -= colLC(tmpTiles, i);
-		}*/
-		//newManhattan -= rowLC(tmpTiles, tile/Solver.size);
-		//newManhattan -= colLC(tmpTiles, tile%Solver.size);
 
 		tmpTiles[zero] = tmpTiles[tile];
 		tmpTiles[tile] = 0;
@@ -185,14 +164,11 @@ public class Board implements Comparable<Board> {
 		if(Solver.boardDatabase.containsKey(toString(tmpTiles))) return null;
 		
 		newManhattan += mh(tmpTiles[zero], zero);
-        //if (VeryBadlinearConflict(tmpTiles, zero)) newManhattan += 2;
 		int newConflict = 0;
 		for (int i = 0; i < Solver.size; i++) {
 			newConflict += rowLC(tmpTiles, i);
 			newConflict += colLC(tmpTiles, i);
 		}
-		//newManhattan += rowLC(tmpTiles, zArray[0]);
-		//newManhattan += colLC(tmpTiles, zArray[1]);
 
 		byte newLastMove;
 		if(xIndex == 0 && yIndex != 0){
