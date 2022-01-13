@@ -65,7 +65,7 @@ public class Solver {
 	static void solve (Board currentBoard){
 		final Board[] children = currentBoard.getChildren();
 		for (Board child : children) {
-			if(child != null && !boardDatabase.containsKey(child.toString())) { priorityQueue.add(child); }
+			if(child != null /*&& !boardDatabase.containsKey(child.toString())*/) { priorityQueue.add(child); }
 		}
 
 		if(!boardDatabase.containsKey(currentBoard.toString()))boardDatabase.put(currentBoard.toString(), currentBoard.pater);
